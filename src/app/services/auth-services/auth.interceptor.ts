@@ -5,6 +5,7 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpParams,
+  HttpHeaders,
 } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { AuthService } from "./auth.service";
@@ -24,7 +25,11 @@ export class AuthInterceptor implements HttpInterceptor {
         if (!user) return next.handle(request);
 
         request = request.clone({
-          params: new HttpParams().set("auth", user.token),
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${
+              user.token ? user.token : user.refreshToken
+            }`,
+          }),
         });
 
         return next.handle(request);

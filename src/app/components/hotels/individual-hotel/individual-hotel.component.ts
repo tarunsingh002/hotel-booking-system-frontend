@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { HotelService } from "../../../services/hotel.service";
 import { AuthService } from "../../../services/auth-services/auth.service";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Booking } from "../../../models/booking.model";
+import { BookingCart } from "../../../models/bookingCart.model";
 import { BookingCartService } from "../../../services/bookingCart.service";
 import { formatDate } from "@angular/common";
 
@@ -92,15 +92,15 @@ export class IndividualHotelComponent implements OnInit {
       return;
     }
 
-    let booking = new Booking(
-      this.hotel.id,
+    let bookingCart = new BookingCart(
+      this.hotel.hotelId,
       rf.value.quantity,
-      rf.value.dates.fromDate,
-      rf.value.dates.toDate,
+      new Date(rf.value.dates.fromDate).getTime(),
+      new Date(rf.value.dates.toDate).getTime(),
       this.totalAmount
     );
 
-    this.bCartService.addToBookingCart(booking);
+    this.bCartService.addToBookingCart(bookingCart);
     this.router.navigate(["/payment"]);
   }
 

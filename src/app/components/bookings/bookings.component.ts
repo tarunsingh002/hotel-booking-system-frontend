@@ -10,18 +10,20 @@ import { ActivatedRoute } from "@angular/router";
 })
 export class BookingsComponent implements OnInit {
   user: User;
-  displayBookingCarts: {
+  displayBookings: {
     hotel: Hotel;
     roomsQuantity: number;
     fromDate: string;
     toDate: string;
     totalAmount: number;
+    id: number;
+    createdDate: string;
   }[] = [];
 
   constructor(private aroute: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.user = this.aroute.snapshot.data["res2"].user;
-    this.displayBookingCarts = this.aroute.snapshot.data["res2"].res;
+    this.displayBookings = this.aroute.snapshot.data["res2"].res;
   }
 }

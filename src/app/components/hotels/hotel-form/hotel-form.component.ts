@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, NgForm, Validators } from "@angular/forms";
 import { Hotel } from "../../../models/hotel.model";
 import { LoadingService } from "../../../services/loading.service";
-import { HotelFirebaseService } from "../../../services/hotel-firebase.service";
+import { HotelDataService } from "../../../services/hotel-data.service";
 import { HotelService } from "../../../services/hotel.service";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
@@ -14,11 +14,11 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 export class HotelFormComponent implements OnInit {
   editMode = false;
   reactiveForm: FormGroup;
-  id: string;
+  id: number;
 
   constructor(
     private l: LoadingService,
-    private hFirebase: HotelFirebaseService,
+    private hdata: HotelDataService,
     private hService: HotelService,
     private router: Router,
     private aroute: ActivatedRoute
@@ -37,7 +37,7 @@ export class HotelFormComponent implements OnInit {
     this.aroute.params.subscribe((params: Params) => {
       if (params["id"] != null) {
         this.editMode = true;
-        this.hFirebase.getHotels().subscribe(() => {
+        this.hdata.getHotels().subscribe(() => {
           let editHotel = this.hService.getHotels()[+params["id"]];
           this.reactiveForm.setValue({
             name: editHotel.name,
@@ -47,7 +47,7 @@ export class HotelFormComponent implements OnInit {
             url: editHotel.url,
             price: editHotel.price,
           });
-          this.id = editHotel.id;
+          this.id = editHotel.hotelId;
         });
       }
     });
@@ -70,14 +70,13 @@ export class HotelFormComponent implements OnInit {
     // console.log(hotel);
 
     if (this.editMode) {
-      this.hFirebase.updateHotel(this.id, hotel).subscribe(() => {
+      this.hdata.updateHotel(this.id, hotel).subscribe(() => {
         this.l.isLoading.next(false);
         this.router.navigate(["hotels"]);
       });
     } else {
-      this.hFirebase.addHotel(hotel).subscribe((res) => {
-        hotel.id = res.name;
-        this.hService.addHotel(hotel);
+      this.hdata.addHotel(hotel).subscribe((res) => {
+        this.hService.addHotel(res);
         this.l.isLoading.next(false);
         this.router.navigate(["hotels"]);
       });

@@ -5,15 +5,16 @@ import { User } from "../../models/user.model";
 import { catchError, tap } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { UserService } from "./user.service";
+import { BookingCartService } from "../bookingCart.service";
+import { apiUrl } from "src/app/apiutility";
 
 export interface responseData {
-  kind: string;
-  email: string;
-  localId: string;
-  idToken: string;
+  id: number;
+  token: string;
   refreshToken: string;
-  expiresIn: string;
-  registered?: boolean;
+  tokenExpirationTime: number;
+  refreshTokenExpirationTime: number;
+  webmaster: boolean;
 }
 
 @Injectable({
@@ -23,107 +24,156 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private userS: UserService
+    private userS: UserService,
+    private bookingCartService: BookingCartService
   ) {}
 
+  refreshTokenExpirationTimer;
   tokenExpirationTimer;
   signUpMode: boolean = false;
 
   User = new BehaviorSubject<User>(null);
 
   signUp(email: string, password: string) {
-    const apiUrl =
-      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCNYFPvjzsxwwHd3-gTIokvjnNGx988kHE";
+    const url = `${apiUrl}/api/v1/auth/signup`;
 
     return this.http
-      .post<responseData>(apiUrl, {
+      .post<responseData>(url, {
         email: email,
         password: password,
-        returnSecureToken: true,
       })
       .pipe(
         catchError(this.handleError),
         tap((resData) => {
           this.signUpMode = true;
           this.handleAuthentication(
-            resData.email,
-            resData.localId,
-            resData.idToken,
-            +resData.expiresIn
+            resData.id,
+            email,
+            resData.token,
+            resData.refreshToken,
+            resData.tokenExpirationTime,
+            resData.refreshTokenExpirationTime,
+            resData.webmaster
           );
         })
       );
   }
 
   signIn(email: string, password: string) {
-    const apiUrl =
-      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCNYFPvjzsxwwHd3-gTIokvjnNGx988kHE";
+    const url = `${apiUrl}/api/v1/auth/signin`;
 
     return this.http
-      .post<responseData>(apiUrl, {
+      .post<responseData>(url, {
         email: email,
         password: password,
-        returnSecureToken: true,
       })
       .pipe(
         catchError(this.handleError),
         tap((resData) => {
           this.signUpMode = false;
           this.handleAuthentication(
-            resData.email,
-            resData.localId,
-            resData.idToken,
-            +resData.expiresIn
+            resData.id,
+            email,
+            resData.token,
+            resData.refreshToken,
+            resData.tokenExpirationTime,
+            resData.refreshTokenExpirationTime,
+            resData.webmaster
           );
         })
       );
   }
 
   handleAuthentication(
+    id: number,
     email: string,
-    userID: string,
     token: string,
-    expiresIn: number
+    refreshToken: string,
+    tokenExpirationTime: number,
+    refreshTokenExpirationTime: number,
+    webmaster: boolean
   ) {
-    if (this.signUpMode) {
-      const expirationTime = new Date(new Date().getTime() + expiresIn * 1000);
-      const user = new User(email, userID, token, expirationTime);
-      this.User.next(user);
-      if (email === "webmaster@wm.com") user.webmaster = true;
-      this.userS.createUser(user).subscribe((res) => {
-        user.rtdid = res.name;
-        this.User.next(user);
-        this.autoLogout(expiresIn * 1000);
-        localStorage.setItem("userData", JSON.stringify(user));
-      });
-    } else {
-      const expirationTime = new Date(new Date().getTime() + expiresIn * 1000);
-      let user = new User(email, userID, token, expirationTime);
-      if (email === "webmaster@wm.com") user.webmaster = true;
-      this.User.next(user);
-      this.userS.loadUsers().subscribe((users) => {
-        let u = users.find((u) => u.id === user.id);
-        if (u.bookings) user.bookings = u.bookings;
-        else user.bookings = [];
-        user.rtdid = u.rtdid;
-        this.User.next(user);
-        this.autoLogout(expiresIn * 1000);
-        localStorage.setItem("userData", JSON.stringify(user));
-      });
-    }
+    const tokenExpirationDate = new Date(tokenExpirationTime);
+    const refreshTokenExpirationDate = new Date(refreshTokenExpirationTime);
+    const user = new User(
+      id,
+      email,
+      token,
+      tokenExpirationDate,
+      refreshToken,
+      refreshTokenExpirationDate,
+      webmaster
+    );
+    this.User.next(user);
+    this.autoLogout(refreshTokenExpirationTime);
+    this.autoRefresh(
+      user,
+      token,
+      refreshToken,
+      tokenExpirationTime,
+      refreshTokenExpirationTime
+    );
+    localStorage.setItem("userData", JSON.stringify(user));
+  }
+
+  autoRefresh(
+    user: User,
+    token: string,
+    refreshToken: string,
+    tokenExpirationTime: number,
+    refreshTokenExpirationTime: number
+  ) {
+    if (refreshTokenExpirationTime > Date.now()) {
+      this.tokenExpirationTimer = setTimeout(() => {
+        this.autoRefreshHttp(token, refreshToken).subscribe((res) => {
+          user = new User(
+            user.id,
+            user.email,
+            res.token,
+            new Date(res.tokenExpirationTime),
+            user.refreshToken,
+            new Date(refreshTokenExpirationTime),
+            user.webmaster
+          );
+          this.User.next(user);
+          localStorage.setItem("userData", JSON.stringify(user));
+          this.autoRefresh(
+            user,
+            user.token,
+            user.refreshToken,
+            res.tokenExpirationTime,
+            refreshTokenExpirationTime
+          );
+        });
+      }, tokenExpirationTime - Date.now());
+    } else this.logout();
+  }
+
+  autoRefreshHttp(token: string, refreshToken: string) {
+    return this.http.post<responseData>(`${apiUrl}/api/v1/auth/refresh`, {
+      token: token,
+      refreshToken: refreshToken,
+    });
   }
 
   autoLogout(expiresIn: number) {
-    this.tokenExpirationTimer = setTimeout(() => {
+    this.refreshTokenExpirationTimer = setTimeout(() => {
       this.logout();
-    }, expiresIn);
+    }, expiresIn - Date.now());
   }
 
   logout() {
     this.User.next(null);
+    this.bookingCartService.bookingCartChanged.next(null);
     localStorage.removeItem("userData");
     localStorage.removeItem("bookingCart");
+    localStorage.removeItem("cart");
     this.router.navigate(["auth"]);
+    if (this.refreshTokenExpirationTimer) {
+      clearTimeout(this.refreshTokenExpirationTimer);
+    }
+    this.refreshTokenExpirationTimer = null;
+
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
     }
@@ -132,44 +182,46 @@ export class AuthService {
 
   autoLogin() {
     const obj = JSON.parse(localStorage.getItem("userData"));
+    const obj2 = JSON.parse(localStorage.getItem("bookingCart"));
 
-    if (!obj) {
-      return;
-    }
+    if (!obj2) this.bookingCartService.bookingCartChanged.next(null);
+    else this.bookingCartService.bookingCartChanged.next(obj2);
+
+    if (!obj) return;
+
     const loadedUser = new User(
-      obj.email,
       obj.id,
+      obj.email,
       obj._token,
       new Date(obj._tokenExpirationDate),
-      obj.webmaster,
-      obj.bookings,
-      obj.rtdid
+      obj._refreshToken,
+      new Date(obj._refreshTokenExpirationDate),
+      obj.webmaster
     );
 
-    if (loadedUser.token) {
+    if (loadedUser.refreshToken) {
       this.User.next(loadedUser);
-      const expirationTime =
-        new Date(obj._tokenExpirationDate).getTime() - new Date().getTime();
-      this.autoLogout(expirationTime);
+      const tokenExpirationTime = new Date(obj._tokenExpirationDate).getTime();
+      const refreshTokenExpirationTime = new Date(
+        obj._refreshTokenExpirationDate
+      ).getTime();
+      this.autoRefresh(
+        loadedUser,
+        loadedUser.token,
+        loadedUser.refreshToken,
+        tokenExpirationTime,
+        refreshTokenExpirationTime
+      );
+      this.autoLogout(refreshTokenExpirationTime);
     }
   }
 
   handleError(errorRes: HttpErrorResponse) {
     let errorMessage = "An unknown error occured";
 
-    if (!errorRes.error || !errorRes.error.error)
-      return throwError(errorMessage);
-    else {
-      switch (errorRes.error.error.message) {
-        case "EMAIL_EXISTS":
-          errorMessage = "An account associated with this email already exists";
-          break;
+    console.log(errorRes);
 
-        case "INVALID_LOGIN_CREDENTIALS":
-          errorMessage = "The password or email is invalid";
-          break;
-      }
-    }
-    return throwError(errorMessage);
+    if (!errorRes.error) return throwError(errorMessage);
+    else return throwError(errorRes.error);
   }
 }

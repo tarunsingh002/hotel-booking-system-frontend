@@ -1,10 +1,15 @@
+import { Hotel } from "./hotel.model";
+import { UserInfo } from "./user-info.model";
+
 export class Booking {
   constructor(
-    public hotelId: string,
+    public createdDate: number,
+    public hotel: Hotel,
     public roomsQuantity: number,
-    public fromDate: string,
-    public toDate: string,
+    public fromDate: number,
+    public toDate: number,
+    public user: UserInfo,
     public totalAmount: number,
-    public bookingId?: string
+    public id?: number
   ) {}
 }

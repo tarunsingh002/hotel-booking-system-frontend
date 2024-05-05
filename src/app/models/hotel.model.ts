@@ -6,6 +6,6 @@ export class Hotel {
     public amenities: string,
     public url: string,
     public price: number,
-    public id?: string
+    public hotelId?: number
   ) {}
 }

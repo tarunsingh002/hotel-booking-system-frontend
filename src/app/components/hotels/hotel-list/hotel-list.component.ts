@@ -2,11 +2,11 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Hotel } from "../../../models/hotel.model";
 import { Subscription } from "rxjs";
 import { HotelService } from "../../../services/hotel.service";
-import { HotelFirebaseService } from "../../../services/hotel-firebase.service";
+import { HotelDataService } from "../../../services/hotel-data.service";
 import { AuthService } from "../../../services/auth-services/auth.service";
 import { Router } from "@angular/router";
 import { BookingCartService } from "../../../services/bookingCart.service";
-import { Booking } from "../../../models/booking.model";
+import { BookingCart } from "../../../models/bookingCart.model";
 import { formatDate } from "@angular/common";
 import { FormControl, FormGroup } from "@angular/forms";
 
@@ -24,7 +24,7 @@ export class HotelListComponent implements OnInit, OnDestroy {
 
   constructor(
     private hservice: HotelService,
-    private hfirebase: HotelFirebaseService,
+    private hdata: HotelDataService,
     private authS: AuthService,
     private router: Router,
     private cartService: BookingCartService
@@ -53,7 +53,7 @@ export class HotelListComponent implements OnInit, OnDestroy {
 
   onDelete(index: number) {
     if (confirm("Are you sure you want to delete this hotel ?"))
-      this.hfirebase.deleteHotel(this.hotels[index].id).subscribe(() => {
+      this.hdata.deleteHotel(this.hotels[index].hotelId).subscribe(() => {
         this.hservice.deleteHotel(index);
       });
   }
@@ -66,7 +66,13 @@ export class HotelListComponent implements OnInit, OnDestroy {
       "en"
     );
 
-    let booking = new Booking(hotel.id, 1, today, tomorrow, hotel.price);
+    let booking = new BookingCart(
+      hotel.hotelId,
+      1,
+      new Date(today).getTime(),
+      new Date(tomorrow).getTime(),
+      hotel.price
+    );
 
     this.cartService.addToBookingCart(booking);
     this.router.navigate(["/payment"]);

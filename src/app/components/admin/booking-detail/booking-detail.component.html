@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="display-3 text-center mb-2">Booking Details</div>
+
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between">
+      <span>Booking Date:</span>
+      <span>{{ displayBooking.createdDate }}</span>
+    </div>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between">
+        <span>Hotel Name:</span>
+        <span>{{ displayBooking.hotel.name }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span>Rooms Quantity:</span>
+        <span>{{ displayBooking.roomsQuantity }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span>From Date:</span>
+        <span>{{ displayBooking.fromDate }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between">
+        <span>To Date:</span>
+        <span>{{ displayBooking.toDate }}</span>
+      </li>
+    </ul>
+    <div class="card-footer d-flex justify-content-between">
+      <span>Booking Total:</span>
+      <span>{{ '$' + displayBooking.totalAmount }}</span>
+    </div>
+  </div>
+</div>
