@@ -4,6 +4,26 @@ img {
   /* object-position: center top; */
 }
 
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+.custom-select {
+  flex: 0 0 1;
+}
+
+.sidebar {
+  height: 98vh;
+}
+
+@media (max-width: 992px) {
+  img {
+    height: 230px;
+  }
+}
+
 @media (max-width: 768px) {
   img {
     height: 200px;
@@ -24,4 +44,8 @@ img {
   .no-hotels {
     height: 75vh;
   }
+}
+
+ul.pagination {
+  cursor: pointer;
 }

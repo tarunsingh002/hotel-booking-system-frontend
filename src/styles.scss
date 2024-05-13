@@ -16,8 +16,9 @@ $primary: $B1-hex;
 $info: $B3-hex;
 $danger: $B5-hex;
 $warning: $B4-hex;
+$grid-gutter-width: 40px;
 
-@import "node_modules/bootstrap/scss/bootstrap.scss";
+@import 'node_modules/bootstrap/scss/bootstrap.scss';
 
 body {
   background-color: $light;

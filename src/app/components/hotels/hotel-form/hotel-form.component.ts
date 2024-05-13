@@ -1,15 +1,14 @@
-import { Component, OnInit } from "@angular/core";
-import { FormControl, FormGroup, NgForm, Validators } from "@angular/forms";
-import { Hotel } from "../../../models/hotel.model";
-import { LoadingService } from "../../../services/loading.service";
-import { HotelDataService } from "../../../services/hotel-data.service";
-import { HotelService } from "../../../services/hotel.service";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import {Component, OnInit} from '@angular/core';
+import {FormControl, FormGroup, NgForm, Validators} from '@angular/forms';
+import {Hotel} from '../../../models/hotel.model';
+import {LoadingService} from '../../../services/loading.service';
+import {HotelDataService} from '../../../services/hotel-data.service';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
 @Component({
-  selector: "app-hotel-form",
-  templateUrl: "./hotel-form.component.html",
-  styleUrls: ["./hotel-form.component.css"],
+  selector: 'app-hotel-form',
+  templateUrl: './hotel-form.component.html',
+  styleUrls: ['./hotel-form.component.css'],
 })
 export class HotelFormComponent implements OnInit {
   editMode = false;
@@ -19,7 +18,6 @@ export class HotelFormComponent implements OnInit {
   constructor(
     private l: LoadingService,
     private hdata: HotelDataService,
-    private hService: HotelService,
     private router: Router,
     private aroute: ActivatedRoute
   ) {}
@@ -35,10 +33,9 @@ export class HotelFormComponent implements OnInit {
     });
 
     this.aroute.params.subscribe((params: Params) => {
-      if (params["id"] != null) {
+      if (params['id'] != null) {
         this.editMode = true;
-        this.hdata.getHotels().subscribe(() => {
-          let editHotel = this.hService.getHotels()[+params["id"]];
+        this.hdata.getHotelById(+params['id']).subscribe((editHotel: Hotel) => {
           this.reactiveForm.setValue({
             name: editHotel.name,
             location: editHotel.location,
@@ -72,13 +69,13 @@ export class HotelFormComponent implements OnInit {
     if (this.editMode) {
       this.hdata.updateHotel(this.id, hotel).subscribe(() => {
         this.l.isLoading.next(false);
-        this.router.navigate(["hotels"]);
+        this.router.navigate(['hotels']);
       });
     } else {
       this.hdata.addHotel(hotel).subscribe((res) => {
-        this.hService.addHotel(res);
+        // this.hService.addHotel(res);
         this.l.isLoading.next(false);
-        this.router.navigate(["hotels"]);
+        this.router.navigate(['hotels']);
       });
     }
   }

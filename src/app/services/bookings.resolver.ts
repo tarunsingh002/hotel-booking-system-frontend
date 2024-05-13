@@ -33,42 +33,38 @@ export class BookingsResolver implements Resolve<{user: User; res: any[]}> {
 
     let displayBookings = [];
 
-    return this.hservice.getHotels().pipe(
-      exhaustMap(() => {
-        return this.aservice.User.pipe(
-          exhaustMap((user) => {
-            if (user) {
-              return this.uservice.loadUserBookings().pipe(
-                exhaustMap((res: Booking[]) => {
-                  if (res) {
-                    res.forEach((r) => {
-                      displayBookings.push({
-                        hotel: r.hotel,
-                        toDate: new Date(r.toDate).toDateString(),
-                        fromDate: new Date(r.fromDate).toDateString(),
-                        createdDate: new Date(r.createdDate).toDateString(),
-                        roomsQuantity: r.roomsQuantity,
-                        totalAmount: r.totalAmount,
-                        id: r.id,
-                      });
-                    });
-                    this.l.isLoading.next(false);
-                    return of({
-                      user: user,
-                      res: displayBookings,
-                    });
-                  } else {
-                    this.l.isLoading.next(false);
-                    return of({user: user, res: []});
-                  }
-                })
-              );
-            } else {
-              this.l.isLoading.next(false);
-              return of({user: null, res: []});
-            }
-          })
-        );
+    return this.aservice.User.pipe(
+      exhaustMap((user) => {
+        if (user) {
+          return this.uservice.loadUserBookings().pipe(
+            exhaustMap((res: Booking[]) => {
+              if (res) {
+                res.forEach((r) => {
+                  displayBookings.push({
+                    hotel: r.hotel,
+                    toDate: new Date(r.toDate).toDateString(),
+                    fromDate: new Date(r.fromDate).toDateString(),
+                    createdDate: new Date(r.createdDate).toDateString(),
+                    roomsQuantity: r.roomsQuantity,
+                    totalAmount: r.totalAmount,
+                    id: r.id,
+                  });
+                });
+                this.l.isLoading.next(false);
+                return of({
+                  user: user,
+                  res: displayBookings,
+                });
+              } else {
+                this.l.isLoading.next(false);
+                return of({user: user, res: []});
+              }
+            })
+          );
+        } else {
+          this.l.isLoading.next(false);
+          return of({user: null, res: []});
+        }
       })
     );
   }
