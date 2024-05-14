@@ -14,8 +14,15 @@ img {
   flex: 0 0 1;
 }
 
+.results-line .lead {
+  font-weight: 370;
+}
+
 .sidebar {
   height: 98vh;
+}
+.no-hotels {
+  height: 65vh;
 }
 
 @media (max-width: 992px) {
@@ -34,17 +41,16 @@ img {
   img {
     height: 80vw;
   }
+  .no-hotels {
+    height: auto;
+  }
 }
 
-.no-hotels {
-  height: 65vh;
-}
-
-@media (max-width: 390px) {
+/* @media (max-width: 390px) {
   .no-hotels {
     height: 75vh;
   }
-}
+} */
 
 ul.pagination {
   cursor: pointer;

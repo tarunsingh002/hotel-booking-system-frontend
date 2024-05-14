@@ -69,6 +69,12 @@ export class HotelListComponent implements OnInit, OnDestroy {
   minPrice: number = -1;
   maxPrice: number = -1;
 
+  usingFilter1 = false;
+  usingFilter2 = false;
+  usingFilter3 = false;
+  usingSearch = false;
+  noOfResults = 0;
+
   constructor(
     private hdata: HotelDataService,
     private authS: AuthService,
@@ -83,6 +89,7 @@ export class HotelListComponent implements OnInit, OnDestroy {
           map((user) => {
             if (hotelResponse.hotels) {
               this.hotels = hotelResponse.hotels;
+              this.noOfResults = hotelResponse.totalElements;
               this.pages = [];
               for (let i = 0; i < hotelResponse.totalPages; i++) this.pages.push(i + 1);
               this.isLast = hotelResponse.lastPage;
@@ -119,6 +126,8 @@ export class HotelListComponent implements OnInit, OnDestroy {
           )
           .subscribe(() => {
             this.searching = false;
+            if (this.searchTerm === '') this.usingSearch = false;
+            else this.usingSearch = true;
           });
       });
 
@@ -211,6 +220,8 @@ export class HotelListComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.filtering = false;
+          if (!this.locationfilter.length) this.usingFilter1 = false;
+          else this.usingFilter1 = true;
         });
     });
 
@@ -254,6 +265,8 @@ export class HotelListComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.filtering = false;
+          if (!this.amenityfilter.length) this.usingFilter2 = false;
+          else this.usingFilter2 = true;
         });
     });
 
@@ -297,6 +310,8 @@ export class HotelListComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.filtering = false;
+          if (this.minPrice === -1 && this.maxPrice === -1) this.usingFilter3 = false;
+          else this.usingFilter3 = true;
         });
     });
   }
