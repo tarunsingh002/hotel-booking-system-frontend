@@ -1,16 +1,13 @@
-import { Component } from "@angular/core";
-import {
-  AuthService,
-  responseData,
-} from "../../services/auth-services/auth.service";
-import { NgForm } from "@angular/forms";
-import { Observable } from "rxjs";
-import { Router } from "@angular/router";
+import {Component} from '@angular/core';
+import {AuthService, responseData} from '../../services/auth-services/auth.service';
+import {NgForm} from '@angular/forms';
+import {Observable} from 'rxjs';
+import {Router} from '@angular/router';
 
 @Component({
-  selector: "app-auth",
-  templateUrl: "./auth.component.html",
-  styleUrls: ["./auth.component.css"],
+  selector: 'app-auth',
+  templateUrl: './auth.component.html',
+  styleUrls: ['./auth.component.css'],
 })
 export class AuthComponent {
   signUpMode = false;
@@ -34,7 +31,7 @@ export class AuthComponent {
     authObs.subscribe(
       (res) => {
         this.isLoading = false;
-        this.router.navigate(["hotels"]);
+        this.router.navigate(['hotels']);
       },
       (error) => {
         this.isLoading = false;

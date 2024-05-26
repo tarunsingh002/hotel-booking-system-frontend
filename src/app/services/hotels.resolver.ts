@@ -15,6 +15,7 @@ export class HotelsResolver implements Resolve<HotelResponse> {
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<HotelResponse> {
     this.l.isLoading.next(true);
+
     return this.hdata.getHotels(1).pipe(
       tap(() => {
         this.l.isLoading.next(false);

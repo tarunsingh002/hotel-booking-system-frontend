@@ -31,6 +31,7 @@ export class IndividualHotelComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.aroute.queryParams.pipe;
     this.hotel = this.aroute.snapshot.data['res'];
     this.totalAmount = this.hotel.price;
 

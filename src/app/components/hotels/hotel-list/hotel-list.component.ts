@@ -337,6 +337,11 @@ export class HotelListComponent implements OnInit, OnDestroy {
   }
 
   bookNow(hotel: Hotel) {
+    if (!this.auth) {
+      this.router.navigate(['/auth']);
+      return;
+    }
+
     let today = formatDate(new Date(), 'yyyy-MM-dd', 'en');
     let tomorrow = formatDate(new Date(Date.now() + 86400000), 'yyyy-MM-dd', 'en');
 
