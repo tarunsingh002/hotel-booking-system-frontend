@@ -10,6 +10,9 @@ import {LoadingService} from 'src/app/services/loading.service';
   styleUrls: ['./feedback.component.css'],
 })
 export class FeedbackComponent {
+  placeholderText: String =
+    'Feedback (2-3 lines or as per your convenience) on my projects and also please comment on the suitability of my profile for the role in question. Feel free to add any other information as appropriate.';
+
   constructor(
     private l: LoadingService,
     private fService: FeedbackService,
