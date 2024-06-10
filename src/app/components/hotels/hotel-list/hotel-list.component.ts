@@ -20,6 +20,12 @@ export class HotelListComponent implements OnInit, OnDestroy {
   hotels: Hotel[] = [];
   auth: boolean = false;
 
+  loggingIn: boolean;
+  introductoryMessage1: boolean;
+  introductoryMessage2: boolean;
+  introductoryMessage3: boolean;
+  userEmail: String;
+
   webmaster: boolean = false;
   reactiveForm: FormGroup;
   sub: Subscription;
@@ -96,12 +102,36 @@ export class HotelListComponent implements OnInit, OnDestroy {
               this.currentPage = hotelResponse.pageNumber + 1;
             }
             this.auth = !!user;
-            if (user) this.webmaster = user.webmaster;
+            if (user) {
+              this.webmaster = user.webmaster;
+              this.userEmail = user.email;
+            }
             return;
           })
         )
       )
     ).subscribe();
+
+    if (!this.auth) {
+      this.introductoryMessage1 = true;
+      setTimeout(() => {
+        this.introductoryMessage1 = false;
+        this.introductoryMessage2 = true;
+        setTimeout(() => {
+          this.introductoryMessage2 = false;
+          this.introductoryMessage3 = true;
+          setTimeout(() => {
+            this.introductoryMessage3 = false;
+            this.loggingIn = true;
+            setTimeout(() => {
+              this.authS.signIn('user@gmail.com', 'user1234').subscribe(() => {
+                this.loggingIn = false;
+              });
+            }, 3000);
+          }, 4000);
+        }, 4000);
+      }, 3000);
+    }
 
     this.reactiveForm = new FormGroup({search: new FormControl(null)});
     this.reactiveForm.valueChanges
