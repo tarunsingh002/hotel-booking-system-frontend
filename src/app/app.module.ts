@@ -3,7 +3,7 @@ import {NgModule} from '@angular/core';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AppComponent} from './app.component';
 import {AuthInterceptor} from './services/auth-services/auth.interceptor';
-import {SharedModule} from './components/shared/shared.module';
+import {SharedModule} from './modules/shared/shared.module';
 import {PreloadAllModules, RouterModule, Routes} from '@angular/router';
 
 const appRoutes: Routes = [
@@ -14,34 +14,33 @@ const appRoutes: Routes = [
   },
   {
     path: 'hotels',
-    loadChildren: () => import('./components/hotels/hotels.module').then((m) => m.HotelsModule),
+    loadChildren: () => import('./modules/hotels/hotels.module').then((m) => m.HotelsModule),
   },
   {
     path: 'miscellaneous',
     loadChildren: () =>
-      import('./components/miscellaneous/miscellaneous.module').then((m) => m.MiscellaneousModule),
+      import('./modules/miscellaneous/miscellaneous.module').then((m) => m.MiscellaneousModule),
   },
   {
     path: 'auth',
-    loadChildren: () => import('./components/auth/auth.module').then((m) => m.AuthModule),
+    loadChildren: () => import('./modules/auth/auth.module').then((m) => m.AuthModule),
   },
   {
     path: 'payment',
-    loadChildren: () => import('./components/payment/payment.module').then((m) => m.PaymentModule),
+    loadChildren: () => import('./modules/payment/payment.module').then((m) => m.PaymentModule),
   },
   {
     path: 'bookings',
-    loadChildren: () =>
-      import('./components/bookings/bookings.module').then((m) => m.BookingsModule),
+    loadChildren: () => import('./modules/bookings/bookings.module').then((m) => m.BookingsModule),
   },
   {
     path: 'admin',
-    loadChildren: () => import('./components/admin/admin.module').then((m) => m.AdminModule),
+    loadChildren: () => import('./modules/admin/admin.module').then((m) => m.AdminModule),
   },
   {
     path: '**',
     loadChildren: () =>
-      import('./components/page-not-found/page-not-found.module').then((m) => m.PageNotFoundModule),
+      import('./modules/page-not-found/page-not-found.module').then((m) => m.PageNotFoundModule),
   },
 ];
 
