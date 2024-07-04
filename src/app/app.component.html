@@ -61,7 +61,8 @@
           >
         </li>
       </ul>
-      <div class="auth ml-auto mr-2">
+      <div class="auth ml-auto mr-2 d-flex align-items-center">
+        <div class="text-light mr-3" *ngIf="auth">{{ userEmail }}</div>
         <button
           class="btn btn-danger text-light"
           (click)="onLogin()"
