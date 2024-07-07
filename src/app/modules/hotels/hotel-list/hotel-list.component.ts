@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Hotel} from '../../../models/hotel.model';
-import {Subscription} from 'rxjs';
+import {of, Subscription} from 'rxjs';
 
 import {HotelDataService} from '../../../services/hotel-data.service';
 import {AuthService} from '../../../services/auth-services/auth.service';
@@ -10,6 +10,7 @@ import {BookingCart} from '../../../models/bookingCart.model';
 import {formatDate} from '@angular/common';
 import {FormControl, FormGroup} from '@angular/forms';
 import {debounceTime, map, max, mergeMap, tap} from 'rxjs/operators';
+import {HttpEventType} from '@angular/common/http';
 
 @Component({
   selector: 'app-hotel-list',
@@ -142,7 +143,7 @@ export class HotelListComponent implements OnInit, OnDestroy {
             this.minPrice,
             this.maxPrice
           )
-          .subscribe(() => {
+          .subscribe((res) => {
             this.searching = false;
             if (this.searchTerm === '') this.usingSearch = false;
             else this.usingSearch = true;

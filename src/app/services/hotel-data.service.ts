@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Hotel} from '../models/hotel.model';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpEventType} from '@angular/common/http';
 import {map, tap} from 'rxjs/operators';
 
 import {apiUrl} from '../apiutility';
@@ -13,6 +13,7 @@ import {BehaviorSubject} from 'rxjs';
 export class HotelDataService {
   api = apiUrl;
   HotelsResponseChanged = new BehaviorSubject<HotelResponse>(null);
+  responseStatusChanged = new BehaviorSubject<HotelResponse>(null);
   constructor(private http: HttpClient) {}
 
   addHotel(h: Hotel) {
@@ -45,7 +46,6 @@ export class HotelDataService {
         )
         .pipe(
           tap((res) => {
-            // this.hservice.addHotels(res.hotels);
             this.HotelsResponseChanged.next(res);
           })
         );
@@ -58,7 +58,8 @@ export class HotelDataService {
         )
         .pipe(
           tap((res) => {
-            // this.hservice.addHotels(res.hotels);
+            console.log(res);
+
             this.HotelsResponseChanged.next(res);
           })
         );
